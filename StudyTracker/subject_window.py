@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from progress_circle import ProgressCircle
+from topic_frame import TopicFrame
+from add_dialog import AddDialog
 
 
 class SubjectWindow:

@@ -1,6 +1,6 @@
+import tkinter as tk
 from tkinter import ttk
-
-import tk
+from add_dialog import AddDialog
 
 
 class TopicFrame:
