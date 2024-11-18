@@ -25,6 +25,9 @@ class SubjectWindow:
         self.progress_circle = ProgressCircle(self.canvas)
         self.update_progress()
 
+        self.window.configure(bg="#f8f9fa")
+        self.canvas.configure(bg="#f8f9fa")
+
         # Topics frame
         self.topics_frame = ttk.Frame(self.window)
         self.topics_frame.pack(fill="both", expand=True, padx=20, pady=20)
