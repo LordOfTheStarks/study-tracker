@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from datetime import datetime
 from data_manager import DataManager
 from progress_calc import ProgressCalculator
 from subject_window import SubjectWindow
@@ -9,8 +10,8 @@ from add_dialog import AddDialog
 class StudyTrackerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Study Progress Tracker")
-        self.root.geometry("800x600")
+        self.root.title("Tracker Dashboard")
+        self.root.geometry("1000x700")
         self.root.configure(bg="#f0f0f0")
 
         # Center the window
@@ -22,25 +23,88 @@ class StudyTrackerApp:
         self.setup_ui()
 
     def setup_ui(self):
-        # Main container
-        self.main_frame = ttk.Frame(self.root)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        # Main container with sidebar
+        self.main_container = ttk.Frame(self.root)
+        self.main_container.pack(fill=tk.BOTH, expand=True)
 
-        # Style configuration
-        self.style = ttk.Style()
-        self.style.configure("Custom.TButton", padding=10)
+        # Sidebar
+        self.sidebar = ttk.Frame(self.main_container, width=200)
+        self.sidebar.pack(side="left", fill="y")
+        self.setup_sidebar()
 
+        # Content area
+        self.content_frame = ttk.Frame(self.main_container)
+        self.content_frame.pack(side="left", fill="both", expand=True, padx=20, pady=20)
+
+        # Clock in the center
+        self.clock_label = ttk.Label(self.content_frame, font=("Helvetica", 48), anchor="center")
+        self.clock_label.pack(pady=20)
+        self.update_clock()
+
+        # Study tracker content
+        self.study_tracker_frame = ttk.Frame(self.content_frame)
+        self.study_tracker_frame.pack(fill="both", expand=True)
+        self.setup_study_tracker()
+
+    def setup_sidebar(self):
+        # Sidebar header
+        ttk.Label(
+            self.sidebar,
+            text="Trackers",
+            font=("Helvetica", 14, "bold"),
+            anchor="center"
+        ).pack(pady=20)
+
+        # Buttons for trackers
+        study_tracker_btn = ttk.Button(
+            self.sidebar,
+            text="Study Tracker",
+            command=self.show_study_tracker
+        )
+        study_tracker_btn.pack(fill="x", padx=10, pady=5)
+
+        # Add more tracker buttons as needed
+        other_tracker_btn = ttk.Button(
+            self.sidebar,
+            text="Other Tracker",
+            command=lambda: print("Other Tracker (Placeholder)")  # Replace with actual functionality
+        )
+        other_tracker_btn.pack(fill="x", padx=10, pady=5)
+
+    def update_clock(self):
+        if self.clock_label.winfo_exists():
+            now = datetime.now().strftime("%H:%M:%S")
+            self.clock_label.config(text=now)
+            self.root.after(1000, self.update_clock)
+
+    def setup_study_tracker(self):
+        # Main study tracker content
         self.create_subject_list()
         self.create_add_button()
 
+    def show_study_tracker(self):
+        # Clear content frame
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+
+        # Recreate clock label
+        self.clock_label = ttk.Label(self.content_frame, font=("Helvetica", 48), anchor="center")
+        self.clock_label.pack(pady=20)
+        self.update_clock()
+
+        # Rebuild the study tracker UI
+        self.study_tracker_frame = ttk.Frame(self.content_frame)
+        self.study_tracker_frame.pack(fill="both", expand=True)
+        self.setup_study_tracker()
+
     def create_subject_list(self):
         # Clear existing widgets
-        for widget in self.main_frame.winfo_children():
+        for widget in self.study_tracker_frame.winfo_children():
             widget.destroy()
 
         # Subjects list with scrollbar
-        self.canvas = tk.Canvas(self.main_frame, bg="#f0f0f0")
-        scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
+        self.canvas = tk.Canvas(self.study_tracker_frame, bg="#f0f0f0")
+        scrollbar = ttk.Scrollbar(self.study_tracker_frame, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = ttk.Frame(self.canvas)
 
         self.scrollable_frame.bind(
@@ -59,8 +123,6 @@ class StudyTrackerApp:
         self.canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        self.create_add_button()
-
     def create_subject_button(self, subject):
         frame = ttk.Frame(self.scrollable_frame)
         frame.pack(fill="x", padx=5, pady=5)
@@ -70,8 +132,7 @@ class StudyTrackerApp:
         button = ttk.Button(
             frame,
             text=f"{subject} ({completion}% Complete)",
-            command=lambda s=subject: self.open_subject_window(s),
-            style="Custom.TButton"
+            command=lambda s=subject: self.open_subject_window(s)
         )
         button.pack(side="left", fill="x", expand=True)
 
@@ -83,39 +144,11 @@ class StudyTrackerApp:
         )
         delete_btn.pack(side="right")
 
-    def setup_styles(self):
-        self.style = ttk.Style()
-
-        # Main add button style
-        self.style.configure(
-            "Custom.TButton",
-            padding=10,
-            background="#3498db",
-            foreground="#ffffff",
-            font=("Helvetica", 14, "bold")
-        )
-
-        # Subject button style
-        self.style.configure(
-            "Subject.TButton",
-            padding=10,
-            font=("Helvetica", 11)
-        )
-
-        # Delete button style
-        self.style.configure(
-            "Delete.TButton",
-            padding=5,
-            font=("Helvetica", 10)
-        )
-
-    # Update the create_add_button method in Main.py
     def create_add_button(self):
         add_button = ttk.Button(
-            self.main_frame,
-            text="+ Add Subject",  # Changed from just "+"
-            command=self.add_subject,
-            style="Custom.TButton"
+            self.study_tracker_frame,
+            text="+ Add Subject",
+            command=self.add_subject
         )
         add_button.pack(side="bottom", pady=20)
 
@@ -139,10 +172,17 @@ class StudyTrackerApp:
         self.create_subject_list()
 
     def open_subject_window(self, subject):
-        if hasattr(self, 'subject_window') and self.subject_window.window.winfo_exists():
-            self.subject_window.switch_subject(subject)
-        else:
-            self.subject_window = SubjectWindow(self.root, subject, self.data_manager, self.progress_calculator)
+        # Clear main menu
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        # Open subject window
+        SubjectWindow(self.root, subject, self.data_manager, self.progress_calculator, self.return_to_main_menu)
+
+    def return_to_main_menu(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+        self.setup_ui()
 
     def center_window(self):
         self.root.update_idletasks()
