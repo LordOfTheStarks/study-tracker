@@ -191,7 +191,7 @@ class SubjectWindow:
         )
 
     def update_progress(self):
-        percentage = self.progress_calculator.calculate_subject_completion(self.subject)
+        percentage = max(0, min(100, self.progress_calculator.calculate_subject_completion(self.subject)))
         self.progress_circle.draw(percentage)
 
     def display_topics(self):

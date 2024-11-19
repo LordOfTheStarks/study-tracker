@@ -122,3 +122,12 @@ class TopicFrame:
         self.data_manager.save_data(data)
         frame.destroy()
         self.update_callback()
+
+    def on_checkbox_click(self, subtopic_name, var):
+            # Update the completion status of the subtopic
+            data = self.data_manager.load_data()
+            data[self.subject]["topics"][self.topic_name]["subtopics"][subtopic_name]["completed"] = var.get()
+            self.data_manager.save_data(data)
+
+            # Trigger a callback to update the progress circle
+            self.update_callback()
