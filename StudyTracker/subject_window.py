@@ -137,7 +137,7 @@ class SubjectWindow:
             padding=10,
             font=("Helvetica", 12, "bold"),
             background="#3498db",
-            foreground="#ffffff"
+            foreground="#000000"
         )
 
     def setup_ui(self):

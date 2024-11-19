@@ -46,7 +46,7 @@ class TopicFrame:
             padding=(15, 8),
             font=("Helvetica", 10),
             background="#3498db",
-            foreground="#ffffff"
+            foreground="#000000"
         )
 
         self.style.configure(
@@ -54,7 +54,7 @@ class TopicFrame:
             padding=5,
             font=("Helvetica", 8),
             background="#e74c3c",
-            foreground="#ffffff"
+            foreground="#000000"
         )
 
         self.style.configure(
@@ -86,7 +86,7 @@ class TopicFrame:
 
         delete_btn = ttk.Button(
             frame,
-            text="×",
+            text="x",
             command=lambda: self.delete_subtopic(subtopic_name, frame),
             style="Delete.TButton",
             width=3
