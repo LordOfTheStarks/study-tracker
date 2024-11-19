@@ -127,28 +127,17 @@ class SubjectWindow:
         style.configure(
             "Modern.TButton",
             padding=10,
+            font=("Helvetica", 11),
             background="#3498db",
-            foreground="#ffffff",
-            font=("Helvetica", 10)
+            foreground="#ffffff"
         )
 
-        # Configure frame style
         style.configure(
-            "Modern.TFrame",
-            background="#ffffff"
-        )
-
-        # Configure labelframe style
-        style.configure(
-            "Modern.TLabelframe",
-            background="#ffffff",
-            padding=10
-        )
-        style.configure(
-            "Modern.TLabelframe.Label",
-            font=("Helvetica", 11, "bold"),
-            foreground="#2c3e50",
-            background="#ffffff"
+            "AddTopic.TButton",
+            padding=10,
+            font=("Helvetica", 12, "bold"),
+            background="#3498db",
+            foreground="#ffffff"
         )
 
     def setup_ui(self):
@@ -223,7 +212,7 @@ class SubjectWindow:
             self.content_frame,
             text="+ Add Topic",
             command=self.add_topic,
-            style="Modern.TButton"
+            style="AddTopic.TButton"
         )
         add_topic_btn.pack(pady=20)
 

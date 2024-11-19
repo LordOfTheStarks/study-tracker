@@ -80,10 +80,37 @@ class StudyTrackerApp:
         )
         delete_btn.pack(side="right")
 
+    def setup_styles(self):
+        self.style = ttk.Style()
+
+        # Main add button style
+        self.style.configure(
+            "Custom.TButton",
+            padding=10,
+            background="#3498db",
+            foreground="#ffffff",
+            font=("Helvetica", 14, "bold")
+        )
+
+        # Subject button style
+        self.style.configure(
+            "Subject.TButton",
+            padding=10,
+            font=("Helvetica", 11)
+        )
+
+        # Delete button style
+        self.style.configure(
+            "Delete.TButton",
+            padding=5,
+            font=("Helvetica", 10)
+        )
+
+    # Update the create_add_button method in Main.py
     def create_add_button(self):
         add_button = ttk.Button(
             self.main_frame,
-            text="+",
+            text="+ Add Subject",  # Changed from just "+"
             command=self.add_subject,
             style="Custom.TButton"
         )

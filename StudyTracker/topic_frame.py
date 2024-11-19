@@ -8,6 +8,8 @@ class TopicFrame:
     def __init__(self, parent, subject, topic_name, topic_data, data_manager,
                  progress_calculator, update_callback):
         self.style = ttk.Style()
+        self.setup_styles()  # Add this line
+
         self.style.configure(
             "Topic.TLabelframe",
             background="#ffffff",
@@ -38,24 +40,28 @@ class TopicFrame:
         self.create_add_subtopic_button()
 
     def setup_styles(self):
+        # Configure styles for all buttons
         self.style.configure(
-            "Subtopic.TCheckbutton",
-            background="#ffffff",
-            font=("Helvetica", 10)
+            "AddSubtopic.TButton",
+            padding=(15, 8),
+            font=("Helvetica", 10),
+            background="#3498db",
+            foreground="#ffffff"
         )
 
         self.style.configure(
             "Delete.TButton",
             padding=5,
-            font=("Helvetica", 8)
+            font=("Helvetica", 8),
+            background="#e74c3c",
+            foreground="#ffffff"
         )
 
         self.style.configure(
-            "AddSubtopic.TButton",
-            padding=8,
-            font=("Helvetica", 9)
+            "Subtopic.TCheckbutton",
+            background="#ffffff",
+            font=("Helvetica", 10)
         )
-
     def display_subtopics(self, topic_data):
         self.subtopics_frame = ttk.Frame(self.frame)
         self.subtopics_frame.pack(fill="x", expand=True)
@@ -69,23 +75,11 @@ class TopicFrame:
 
         var = tk.BooleanVar(value=subtopic_data["completed"])
 
-        def on_checkbox_click():
-            data = self.data_manager.load_data()
-            data[self.subject]["topics"][self.topic_name]["subtopics"][subtopic_name]["completed"] = var.get()
-            self.data_manager.save_data(data)
-            self.update_callback()
-
-            # Add fade effect
-            if var.get():
-                frame.configure(style="Completed.TFrame")
-            else:
-                frame.configure(style="TFrame")
-
         checkbox = ttk.Checkbutton(
             frame,
             text=subtopic_name,
             variable=var,
-            command=on_checkbox_click,
+            command=lambda: self.on_checkbox_click(subtopic_name, var),
             style="Subtopic.TCheckbutton"
         )
         checkbox.pack(side="left")
