@@ -13,6 +13,9 @@ class StudyTrackerApp:
         self.root.geometry("800x600")
         self.root.configure(bg="#f0f0f0")
 
+        # Center the window
+        self.center_window()
+
         self.data_manager = DataManager()
         self.progress_calculator = ProgressCalculator(self.data_manager)
 
@@ -136,7 +139,18 @@ class StudyTrackerApp:
         self.create_subject_list()
 
     def open_subject_window(self, subject):
-        SubjectWindow(self.root, subject, self.data_manager, self.progress_calculator)
+        if hasattr(self, 'subject_window') and self.subject_window.window.winfo_exists():
+            self.subject_window.switch_subject(subject)
+        else:
+            self.subject_window = SubjectWindow(self.root, subject, self.data_manager, self.progress_calculator)
+
+    def center_window(self):
+        self.root.update_idletasks()
+        width = self.root.winfo_width()
+        height = self.root.winfo_height()
+        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        self.root.geometry(f"{width}x{height}+{x}+{y}")
 
 
 if __name__ == "__main__":
