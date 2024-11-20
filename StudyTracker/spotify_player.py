@@ -10,8 +10,25 @@ import urllib.parse
 import json
 from tkinter import messagebox
 
-# Load environment variables
-load_dotenv()
+from dotenv import load_dotenv
+import os
+import sys
+
+def resource_path(relative_path):
+    """Get absolute path to resource."""
+    try:
+        # When bundled with PyInstaller
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # During development
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+# Load the .env file dynamically
+env_path = resource_path(".env")
+load_dotenv(env_path)
+
 
 class SpotifyAuthHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
