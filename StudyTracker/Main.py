@@ -107,8 +107,18 @@ class StudyTrackerApp:
             self.root.after(1000, self.update_clock)
 
     def setup_study_tracker(self):
-        # Main study tracker content
+        # Create a frame for the list
+        self.list_frame = ttk.Frame(self.study_tracker_frame)
+        self.list_frame.pack(fill="both", expand=True)
+
+        # Create subject list in the list frame
         self.create_subject_list()
+
+        # Create add button frame
+        self.button_frame = ttk.Frame(self.study_tracker_frame)
+        self.button_frame.pack(side="bottom", fill="x")
+
+        # Create add button in the button frame
         self.create_add_button()
 
     def show_study_tracker(self):
@@ -127,13 +137,13 @@ class StudyTrackerApp:
         self.setup_study_tracker()
 
     def create_subject_list(self):
-        # Clear existing widgets
-        for widget in self.study_tracker_frame.winfo_children():
+        # Clear existing widgets in list frame only
+        for widget in self.list_frame.winfo_children():
             widget.destroy()
 
         # Subjects list with scrollbar
-        self.canvas = tk.Canvas(self.study_tracker_frame, bg="#f0f0f0")
-        scrollbar = ttk.Scrollbar(self.study_tracker_frame, orient="vertical", command=self.canvas.yview)
+        self.canvas = tk.Canvas(self.list_frame, bg="#f0f0f0")
+        scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = ttk.Frame(self.canvas)
 
         self.scrollable_frame.bind(
@@ -175,11 +185,11 @@ class StudyTrackerApp:
 
     def create_add_button(self):
         add_button = ttk.Button(
-            self.study_tracker_frame,
+            self.button_frame,
             text="+ Add Subject",
             command=self.add_subject
         )
-        add_button.pack(side="bottom", pady=20)
+        add_button.pack(pady=20)
 
     def add_subject(self):
         AddDialog("Add Subject", "Enter subject name:", self.add_subject_callback)
@@ -192,7 +202,7 @@ class StudyTrackerApp:
         if subject_name not in data:
             data[subject_name] = {"topics": {}}
             self.data_manager.save_data(data)
-            self.create_subject_list()
+            self.create_subject_list()  # This now only updates the list, not the button
 
     def delete_subject(self, subject):
         data = self.data_manager.load_data()

@@ -38,14 +38,12 @@ class ModernScrollFrame(ttk.Frame):
         if self.canvas.winfo_exists():
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-
-
 class ModernSidebar(ttk.Frame):
     def __init__(self, parent, current_subject, data_manager, subject_callback, return_callback):
         super().__init__(parent)
         self.data_manager = data_manager
-        self.subject_callback = subject_callback  # Callback for switching subjects
-        self.return_callback = return_callback    # Callback for returning to main menu
+        self.subject_callback = subject_callback
+        self.return_callback = return_callback
         self.current_subject = current_subject
 
         # Configure sidebar style
@@ -53,13 +51,54 @@ class ModernSidebar(ttk.Frame):
         style.configure("Sidebar.TFrame", background="#2c3e50")
         self.configure(style="Sidebar.TFrame")
 
-        # Build the sidebar UI
+        # Create a canvas and scrollbar for scrolling
+        self.canvas = tk.Canvas(self, bg="#2c3e50", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas, style="Sidebar.TFrame")
+
+        # Configure canvas scrolling
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        # Bind mouse wheel scrolling only when hovering over the sidebar
+        self.bind_mouse_scroll()
+
+        # Setup the UI
         self.setup_ui()
+
+        # Configure canvas size
+        self.canvas.bind("<Configure>", self._configure_canvas)
+
+    def bind_mouse_scroll(self):
+        # Bind mousewheel events when mouse enters the widget
+        self.canvas.bind("<Enter>", self._bind_mousewheel)
+        self.canvas.bind("<Leave>", self._unbind_mousewheel)
+        self.scrollbar.bind("<Enter>", self._bind_mousewheel)
+        self.scrollbar.bind("<Leave>", self._unbind_mousewheel)
+
+    def _bind_mousewheel(self, event):
+        # Bind the mousewheel event to the canvas
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _unbind_mousewheel(self, event):
+        # Unbind the mousewheel event when mouse leaves
+        self.canvas.unbind_all("<MouseWheel>")
+
+    def _on_mousewheel(self, event):
+        # Scroll the canvas when mousewheel is used
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def _configure_canvas(self, event):
+        self.canvas.itemconfig(self.canvas.find_withtag("all")[0], width=event.width)
 
     def setup_ui(self):
         # Header
         header = ttk.Label(
-            self,
+            self.scrollable_frame,
             text="Subjects",
             font=("Helvetica", 12, "bold"),
             foreground="#ecf0f1",
@@ -68,7 +107,7 @@ class ModernSidebar(ttk.Frame):
         header.pack(pady=20, padx=10)
 
         # Subject buttons frame
-        self.subject_buttons_frame = ttk.Frame(self, style="Sidebar.TFrame")
+        self.subject_buttons_frame = ttk.Frame(self.scrollable_frame, style="Sidebar.TFrame")
         self.subject_buttons_frame.pack(fill="both", expand=True)
 
         # Populate subject buttons
@@ -76,17 +115,20 @@ class ModernSidebar(ttk.Frame):
         for subject in subjects:
             self.create_subject_button(subject)
 
-        # Return button at the bottom
-        return_button_frame = ttk.Frame(self, style="Sidebar.TFrame")
-        return_button_frame.pack(fill="x", side="bottom", pady=10, padx=10)
-
-        return_button = ttk.Button(
-            return_button_frame,
+        # Return button container (outside scrollable area)
+        self.return_button_frame = ttk.Frame(self, style="Sidebar.TFrame")
+        self.return_button = ttk.Button(
+            self.return_button_frame,
             text="Return to Main Menu",
             command=self.return_callback,
             style="Sidebar.TButton"
         )
-        return_button.pack(fill="x")
+        self.return_button.pack(fill="x", padx=10, pady=10)
+
+        # Pack everything in the correct order
+        self.canvas.pack(side="top", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+        self.return_button_frame.pack(side="bottom", fill="x", before=self.canvas)
 
     def create_subject_button(self, subject):
         is_current = subject == self.current_subject
@@ -106,6 +148,12 @@ class ModernSidebar(ttk.Frame):
         )
         button.pack(fill="x")
 
+        # Bind mousewheel events to the button and frame
+        button.bind("<Enter>", self._bind_mousewheel)
+        button.bind("<Leave>", self._unbind_mousewheel)
+        button_frame.bind("<Enter>", self._bind_mousewheel)
+        button_frame.bind("<Leave>", self._unbind_mousewheel)
+
         # Hover effects
         def on_enter(e):
             if not is_current:
@@ -119,10 +167,10 @@ class ModernSidebar(ttk.Frame):
 
         def on_click(e):
             if not is_current:
-                self.subject_callback(subject)  # Correct callback
+                self.subject_callback(subject)
 
-        button.bind("<Enter>", on_enter)
-        button.bind("<Leave>", on_leave)
+        button.bind("<Enter>", lambda e: [on_enter(e), self._bind_mousewheel(e)])
+        button.bind("<Leave>", lambda e: [on_leave(e), self._unbind_mousewheel(e)])
         button.bind("<Button-1>", on_click)
         button_frame.bind("<Button-1>", on_click)
 
@@ -146,14 +194,14 @@ class SubjectWindow:
         self.progress_calculator = progress_calculator
         self.return_callback = return_callback
 
-        # Create main container FIRST
+        # Create main container
         self.main_container = ttk.Frame(self.window, style="Modern.TFrame")
         self.main_container.pack(fill="both", expand=True)
 
         # Configure styles
         self.setup_styles()
 
-        # Setup sidebar ONCE
+        # Setup sidebar
         self.sidebar = ModernSidebar(
             self.main_container,
             self.subject,
@@ -272,4 +320,8 @@ class SubjectWindow:
         if topic_name not in data[self.subject]["topics"]:
             data[self.subject]["topics"][topic_name] = {"subtopics": {}}
             self.data_manager.save_data(data)
+
+            # Clear and rebuild topics display
+            for widget in self.topics_frame.winfo_children():
+                widget.destroy()
             self.display_topics()

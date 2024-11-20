@@ -80,13 +80,13 @@ class ProgressCircle:
             x, y,
             text="Congratulations!",
             font=("Helvetica", 16, "bold"),
-            fill="#28a745",
+            fill="#000000",
             tags="congrats"
         )
 
         # Add subtle animation
         def animate():
             self.canvas.move("congrats", 0, -1)
-            self.canvas.after(50, animate)
+            self.canvas.after(1, animate)
 
         animate()
