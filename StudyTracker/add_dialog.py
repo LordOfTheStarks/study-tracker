@@ -1,9 +1,11 @@
-# add_dialog.py
 import tkinter as tk
 from tkinter import ttk
+from font_manager import FontManager
 
 class AddDialog:
     def __init__(self, title, prompt, callback):
+        # Get font manager instance
+        self.font_manager = FontManager()
         self.dialog = tk.Toplevel()
         self.dialog.title(title)
         self.dialog.geometry("400x250")
@@ -75,21 +77,22 @@ class AddDialog:
             "Dialog.TLabel",
             background="#ffffff",
             foreground="#2c3e50",
-            font=("Helvetica", 12)
+            font=(self.font_manager.get_font(), 12)
         )
 
         # Entry style
         style.configure(
             "Dialog.TEntry",
             fieldbackground="#ffffff",
-            padding=5
+            padding=5,
+            font=(self.font_manager.get_font(), 10)
         )
 
         # Button styles
         style.configure(
             "Dialog.TButton",
             padding=(20, 10),
-            font=("Helvetica", 10)
+            font=(self.font_manager.get_font(), 10)
         )
 
     def create_buttons(self, button_frame):

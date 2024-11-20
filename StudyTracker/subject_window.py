@@ -1,9 +1,9 @@
-# subject_window.py
 import tkinter as tk
 from tkinter import ttk
 from progress_circle import ProgressCircle
 from topic_frame import TopicFrame
 from add_dialog import AddDialog
+from font_manager import FontManager
 
 
 class ModernScrollFrame(ttk.Frame):
@@ -38,9 +38,13 @@ class ModernScrollFrame(ttk.Frame):
         if self.canvas.winfo_exists():
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
+
 class ModernSidebar(ttk.Frame):
     def __init__(self, parent, current_subject, data_manager, subject_callback, return_callback):
         super().__init__(parent)
+
+        # Get font manager instance
+        self.font_manager = FontManager()
         self.data_manager = data_manager
         self.subject_callback = subject_callback
         self.return_callback = return_callback
@@ -188,6 +192,8 @@ class ModernSidebar(ttk.Frame):
 
 class SubjectWindow:
     def __init__(self, parent, subject, data_manager, progress_calculator, return_callback):
+        # Get font manager instance
+        self.font_manager = FontManager()
         self.window = parent
         self.subject = subject
         self.data_manager = data_manager
@@ -217,6 +223,9 @@ class SubjectWindow:
 
         # Build the content area
         self.setup_ui()
+
+        # Configure styles with custom font
+        self.font_manager.configure_styles()
 
     def setup_styles(self):
         style = ttk.Style()

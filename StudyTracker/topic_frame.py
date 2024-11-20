@@ -1,15 +1,19 @@
-# topic_frame.py
 import tkinter as tk
 from tkinter import ttk
 from add_dialog import AddDialog
+from font_manager import FontManager
 
 
 class TopicFrame:
     def __init__(self, parent, subject, topic_name, topic_data, data_manager,
                  progress_calculator, update_callback):
+
+        self.font_manager = FontManager()
+        # Get font manager instance
         self.style = ttk.Style()
         self.setup_styles()  # Add this line
 
+        # Configure styles with custom font
         self.style.configure(
             "Topic.TLabelframe",
             background="#ffffff",
@@ -17,7 +21,7 @@ class TopicFrame:
         )
         self.style.configure(
             "Topic.TLabelframe.Label",
-            font=("Helvetica", 12, "bold"),
+            font=(self.font_manager.get_font(), 12, "bold"),
             foreground="#2c3e50",
             background="#ffffff"
         )
@@ -44,7 +48,7 @@ class TopicFrame:
         self.style.configure(
             "AddSubtopic.TButton",
             padding=(15, 8),
-            font=("Helvetica", 10),
+            font=(self.font_manager.get_font(), 10),
             background="#3498db",
             foreground="#000000"
         )
@@ -52,7 +56,7 @@ class TopicFrame:
         self.style.configure(
             "Delete.TButton",
             padding=5,
-            font=("Helvetica", 8),
+            font=(self.font_manager.get_font(), 8),
             background="#e74c3c",
             foreground="#000000"
         )
@@ -60,7 +64,7 @@ class TopicFrame:
         self.style.configure(
             "Subtopic.TCheckbutton",
             background="#ffffff",
-            font=("Helvetica", 10)
+            font=(self.font_manager.get_font(), 10)
         )
     def display_subtopics(self, topic_data):
         self.subtopics_frame = ttk.Frame(self.frame)

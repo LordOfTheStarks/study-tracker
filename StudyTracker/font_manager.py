@@ -1,79 +1,98 @@
-import tkinter as tk
 import os
-from tkinter import font
+import sys
+from ctypes import windll, byref, create_unicode_buffer, create_string_buffer
+import tkinter as tk
+from tkinter import ttk
 
 
 class FontManager:
-    def __init__(self, font_path):
-        """
-        Initialize the font manager with the path to the custom font file.
+    _instance = None
 
-        Args:
-            font_path (str): Path to the .ttf or .otf font file
-        """
-        self.font_path = font_path
-        self.font_family = self._load_custom_font()
+    def __new__(cls):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
-    def _load_custom_font(self):
-        """Load the custom font and return the font family name."""
+    def __init__(self):
+        if not hasattr(self, 'initialized'):
+            self.custom_font = self.load_custom_font()
+            self.initialized = True
+
+    def load_custom_font(self):
         try:
-            # Add the font to Tkinter
-            font_path = os.path.abspath(self.font_path)
-            temp_root = tk.Tk()
-            font_family = font.families(temp_root)[0]  # Get the first available font family as fallback
-            custom_font = font.Font(family=font_family)
+            # Get the absolute path to the font file
+            if getattr(sys, 'frozen', False):
+                # If running as exe
+                application_path = os.path.dirname(sys.executable)
+            else:
+                # If running as script
+                application_path = os.path.dirname(os.path.abspath(__file__))
 
-            # Load the custom font
-            temp_root.tk.call('tk', 'fontCreate', 'CustomFont', '-file', font_path)
-            font_family = 'CustomFont'
+            # Try TTF first, then OTF
+            font_path = os.path.join(application_path, 'fonts', 'Dune_Rise.ttf')
+            if not os.path.exists(font_path):
+                font_path = os.path.join(application_path, 'fonts', 'Dune_Rise.otf')
 
-            temp_root.destroy()
-            return font_family
+            if not os.path.exists(font_path):
+                print(f"Font file not found at {font_path}")
+                return "Helvetica"
+
+            # Windows API call to load the font
+            FR_PRIVATE = 0x10
+            FR_NOT_ENUM = 0x20
+
+            # Load the font file
+            path_buf = create_unicode_buffer(font_path)
+            AddFontResourceEx = windll.gdi32.AddFontResourceExW
+            AddFontResourceEx(byref(path_buf), FR_PRIVATE, 0)
+
+            # Get the font name
+            font_name = "Dune Rise"  # The actual name of the font family
+
+            return font_name
 
         except Exception as e:
             print(f"Error loading custom font: {e}")
-            return "Helvetica"  # Fallback font
+            return "Helvetica"
 
-    def get_font(self, size, weight="normal"):
+    def configure_styles(self, root=None):
         """
-        Get the font configuration tuple.
-
-        Args:
-            size (int): Font size
-            weight (str): Font weight ("normal" or "bold")
-
-        Returns:
-            tuple: Font configuration tuple (family, size, weight)
+        Configure styles for the entire application with the custom font
         """
-        return (self.font_family, size, weight)
+        style = ttk.Style()
 
-    def configure_styles(self, style):
-        """
-        Configure all ttk styles with the custom font.
+        # General styles
+        style.configure('TLabel', font=(self.custom_font, 10))
+        style.configure('TButton', font=(self.custom_font, 10))
+        style.configure('Clock.TLabel', font=(self.custom_font, 48))
+        style.configure('Header.TLabel', font=(self.custom_font, 14, 'bold'))
+        style.configure('Sidebar.TButton', font=(self.custom_font, 11, 'bold'))
+        style.configure('Topic.TLabel', font=(self.custom_font, 12))
+        style.configure('Subtopic.TLabel', font=(self.custom_font, 10))
 
-        Args:
-            style (ttk.Style): The ttk style object to configure
-        """
-        # Main text styles
-        style.configure("TLabel", font=self.get_font(10))
-        style.configure("TButton", font=self.get_font(10))
-        style.configure("TEntry", font=self.get_font(10))
-
-        # Header styles
-        style.configure("Header.TLabel", font=self.get_font(14, "bold"))
-        style.configure("Title.TLabel", font=self.get_font(24, "bold"))
-
-        # Sidebar styles
-        style.configure("Sidebar.TButton", font=self.get_font(11, "bold"))
-        style.configure("Sidebar.TLabel", font=self.get_font(14, "bold"))
+        # Specific styles for each component
+        # Add more specific style configurations here as needed
+        style.configure("Subject.TButton", font=(self.custom_font, 11))
+        style.configure("Delete.TButton", font=(self.custom_font, 8))
+        style.configure("AddTopic.TButton", font=(self.custom_font, 12, 'bold'))
+        style.configure("Sidebar.TButton", font=(self.custom_font, 11, 'bold'))
 
         # Dialog styles
-        style.configure("Dialog.TLabel", font=self.get_font(12))
-        style.configure("Dialog.TButton", font=self.get_font(10))
+        style.configure("Dialog.TLabel", font=(self.custom_font, 12))
+        style.configure("Dialog.TButton", font=(self.custom_font, 10))
 
-        # Topic styles
-        style.configure("Topic.TLabelframe.Label", font=self.get_font(12, "bold"))
-        style.configure("Subtopic.TCheckbutton", font=self.get_font(10))
+        # Topic Frame styles
+        style.configure(
+            "Topic.TLabelframe.Label",
+            font=(self.custom_font, 12, "bold")
+        )
+        style.configure(
+            "Subtopic.TCheckbutton",
+            font=(self.custom_font, 10)
+        )
 
-        # Add Topic/Subject button styles
-        style.configure("AddTopic.TButton", font=self.get_font(12, "bold"))
+    def get_font(self):
+        """
+        Return the custom font name
+        """
+        return self.custom_font

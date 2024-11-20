@@ -5,14 +5,23 @@ from data_manager import DataManager
 from progress_calc import ProgressCalculator
 from subject_window import SubjectWindow
 from add_dialog import AddDialog
+from font_manager import FontManager
+import os
+import sys
 
 
 class StudyTrackerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Tracker Dashboard")
+        self.root.title("Study Tracker")
         self.root.geometry("1000x700")
         self.root.configure(bg="#f0f0f0")
+
+        # Initialize FontManager
+        self.font_manager = FontManager()
+
+        # Configure styles with custom font
+        self.font_manager.configure_styles()
 
         # Center the window
         self.center_window()
