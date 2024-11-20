@@ -52,24 +52,53 @@ class StudyTrackerApp:
             self.sidebar,
             text="Trackers",
             font=("Helvetica", 14, "bold"),
-            anchor="center"
+            foreground="#ecf0f1",
+            background="#2c3e50"
         ).pack(pady=20)
+
+        # Configure sidebar style
+        style = ttk.Style()
+        style.configure(
+            "Sidebar.TFrame",
+            background="#2c3e50"
+        )
+        style.configure(
+            "Sidebar.TButton",
+            padding=10,
+            font=("Helvetica", 11, "bold"),
+            background="#2c3e50",
+            foreground="#000000"
+        )
+        style.configure(
+            "Sidebar.TLabel",
+            background="#2c3e50",
+            foreground="#ecf0f1",
+            font=("Helvetica", 14, "bold")
+        )
+
+        # Apply the sidebar frame style
+        self.sidebar.configure(style="Sidebar.TFrame")
 
         # Buttons for trackers
         study_tracker_btn = ttk.Button(
             self.sidebar,
             text="Study Tracker",
-            command=self.show_study_tracker
+            command=self.show_study_tracker,
+            style="Sidebar.TButton"
         )
         study_tracker_btn.pack(fill="x", padx=10, pady=5)
 
-        # Add more tracker buttons as needed
+        # Other tracker button
         other_tracker_btn = ttk.Button(
             self.sidebar,
             text="Other Tracker",
-            command=lambda: print("Other Tracker (Placeholder)")  # Replace with actual functionality
+            command=lambda: print("Other Tracker (Placeholder)"),
+            style="Sidebar.TButton"
         )
         other_tracker_btn.pack(fill="x", padx=10, pady=5)
+
+        # Optional: Configure sidebar background
+        self.sidebar.configure(style="Sidebar.TFrame")
 
     def update_clock(self):
         if self.clock_label.winfo_exists():

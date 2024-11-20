@@ -172,9 +172,20 @@ class SubjectWindow:
 
     def setup_styles(self):
         style = ttk.Style()
-        style.configure("Modern.TButton", padding=10, font=("Helvetica", 11), background="#3498db", foreground="#ffffff")
-        style.configure("AddTopic.TButton", padding=10, font=("Helvetica", 12, "bold"), background="#3498db")
+        # Sidebar button style
+        style.configure(
+            "Sidebar.TButton",
+            padding=10,
+            font=("Helvetica", 11, "bold"),
+            background="#2c3e50",
+            foreground="#000000"
+        )
 
+        # Modern frame style
+        style.configure("Modern.TFrame", background="#ffffff")
+        style.configure("Modern.TButton", padding=10, font=("Helvetica", 11), background="#3498db",
+                        foreground="#000000")
+        style.configure("AddTopic.TButton", padding=10, font=("Helvetica", 12, "bold"), background="#3498db")
     def setup_ui(self):
         # Progress circle
         self.canvas = tk.Canvas(self.content_frame, width=200, height=200, bg="#ffffff", highlightthickness=0)
@@ -252,14 +263,6 @@ class SubjectWindow:
 
     def add_topic(self):
         AddDialog("Add Topic", "Enter topic name:", self.add_topic_callback)
-
-    def setup_styles(self):
-        style = ttk.Style()
-        style.configure("Modern.TButton", padding=10, font=("Helvetica", 11), background="#3498db",
-                        foreground="#ffffff")
-        style.configure("AddTopic.TButton", padding=10, font=("Helvetica", 12, "bold"), background="#3498db")
-        style.configure("Sidebar.TButton", padding=10, font=("Helvetica", 11), background="#2c3e50",
-                        foreground="#ffffff")
 
     def add_topic_callback(self, topic_name):
         if not topic_name:
