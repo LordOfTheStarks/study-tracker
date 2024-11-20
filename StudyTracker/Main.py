@@ -1,13 +1,16 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 from data_manager import DataManager
 from progress_calc import ProgressCalculator
 from subject_window import SubjectWindow
 from add_dialog import AddDialog
 from font_manager import FontManager
+from tkinter import PhotoImage
+from PIL import Image, ImageTk
 import os
 import sys
+from spotify_player import SpotifyPlayer
 
 
 class StudyTrackerApp:
@@ -28,6 +31,9 @@ class StudyTrackerApp:
 
         self.data_manager = DataManager()
         self.progress_calculator = ProgressCalculator(self.data_manager)
+
+        # Initialize the Spotify player
+        self.spotify_player = SpotifyPlayer()
 
         self.setup_ui()
 
@@ -52,21 +58,149 @@ class StudyTrackerApp:
             background="#D2DCE5"  # Light blue-gray
         )
 
-        # Clock in the center
-        self.clock_label = ttk.Label(
+        # Create a frame for the top buttons
+        self.top_buttons_frame = ttk.Frame(self.content_frame, style="Content.TFrame")
+        self.top_buttons_frame.pack(fill="x", pady=(0, 20))  # Add some space below the buttons
+
+        # Background canvas for the clock
+        self.clock_canvas = tk.Canvas(
             self.content_frame,
-            font=("Helvetica", 48),
-            anchor="center",
-            foreground="#483C32",  # Dark taupe
-            background="#D2DCE5"  # Light blue-gray
+            width=500,  # Adjust width to suit your layout
+            height=200,  # Adjust height to suit your layout
+            bg="#D2DCE5",  # Match content frame background
+            highlightthickness=0
         )
-        self.clock_label.pack(pady=20)
+        self.clock_canvas.pack(pady=20)
+
+        # Load and display the image using Pillow (for .jpeg support)
+        self.clock_bg_image = Image.open("clock_bg.jpeg")  # Open JPEG image using Pillow
+        self.clock_bg_image = self.clock_bg_image.resize((500, 200))  # Resize if needed
+        self.clock_bg_image = ImageTk.PhotoImage(self.clock_bg_image)  # Convert to Tkinter-compatible format
+
+        self.clock_canvas.create_image(0, 0, anchor="nw", image=self.clock_bg_image)
+
+        # Clock in the center of the canvas
+        self.clock_label = tk.Label(
+            self.clock_canvas,
+            font=("Helvetica", 48),
+            foreground="#483C32",  # Dark taupe
+            background="#D2DCE5"  # Ensure transparency with the canvas
+        )
+        self.clock_label.place(relx=0.5, rely=0.5, anchor="center")  # Center the clock label
         self.update_clock()
 
         # Study tracker content
         self.study_tracker_frame = ttk.Frame(self.content_frame, style="Content.TFrame")
         self.study_tracker_frame.pack(fill="both", expand=True)
         self.setup_study_tracker()
+
+        # Load headset icon
+        self.headset_icon = Image.open("headset_icon.png")  # Path to headset icon
+        self.headset_icon = self.headset_icon.resize((40, 40))  # Resize icon
+        self.headset_icon = ImageTk.PhotoImage(self.headset_icon)
+
+        # Load headset icon
+        self.headset_icon = Image.open("headset_icon.png")
+        self.headset_icon = self.headset_icon.resize((30, 30))  # Made icon slightly smaller
+        self.headset_icon = ImageTk.PhotoImage(self.headset_icon)
+
+        # Style for the Spotify connect button
+        style.configure(
+            "Spotify.TButton",
+            padding=5,
+            font=(self.font_manager.get_font(), 10),
+            background="#1DB954",  # Spotify green
+        )
+
+        # Headset Button (top left)
+        self.headset_button = ttk.Button(
+            self.top_buttons_frame,
+            image=self.headset_icon,
+            command=self.toggle_mute,
+            style="Spotify.TButton"
+        )
+        self.headset_button.pack(side="left", padx=10)
+
+        # Spotify Connect Button (top right)
+        self.spotify_button = ttk.Button(
+            self.top_buttons_frame,
+            text="Connect to Spotify",
+            command=self.connect_spotify,
+            style="Spotify.TButton"
+        )
+        self.spotify_button.pack(side="right", padx=10)
+
+    def toggle_mute(self):
+        try:
+            current_playback = self.sp.current_playback()
+            if current_playback and current_playback['is_playing']:
+                # Toggle between 0 and 100 volume
+                current_volume = current_playback.get('device', {}).get('volume_percent', 100)
+                new_volume = 0 if current_volume > 0 else 100
+                self.sp.volume(new_volume)
+        except Exception as e:
+            print(f"Error toggling volume: {e}")
+
+    def add_spotify_button(self):
+        spotify_button = tk.Button(self.content_frame, text="Connect to Spotify", command=self.connect_spotify)
+        spotify_button.place(relx=1.0, rely=0.5, anchor="e", x=10)  # Position to the right
+
+    # In Main.py, modify the connect_spotify method:
+
+    def connect_spotify(self):
+        try:
+            # Attempt to authenticate
+            self.spotify_player.authenticate()
+
+            # Create a frame for playback controls
+            self.playback_frame = ttk.Frame(self.top_buttons_frame, style="Content.TFrame")
+            self.playback_frame.pack(side="right", padx=(0, 10))
+
+            # Style for the playback buttons
+            style = ttk.Style()
+            style.configure(
+                "Playback.TButton",
+                padding=5,
+                font=(self.font_manager.get_font(), 10),
+            )
+
+            # Add preset album button first
+            preset_album_button = ttk.Button(
+                self.playback_frame,
+                text="Play Album",
+                command=self.spotify_player.play_preset_playlist,
+                style="Playback.TButton"
+            )
+            preset_album_button.pack(side="left", padx=2)
+
+            # Add regular playback controls
+            play_button = ttk.Button(
+                self.playback_frame,
+                text="▶",
+                command=self.spotify_player.play,
+                style="Playback.TButton"
+            )
+            pause_button = ttk.Button(
+                self.playback_frame,
+                text="❚❚",
+                command=self.spotify_player.pause,
+                style="Playback.TButton"
+            )
+            next_button = ttk.Button(
+                self.playback_frame,
+                text="⏭",
+                command=self.spotify_player.next,
+                style="Playback.TButton"
+            )
+
+            # Pack the buttons horizontally
+            play_button.pack(side="left", padx=2)
+            pause_button.pack(side="left", padx=2)
+            next_button.pack(side="left", padx=2)
+
+            messagebox.showinfo("Spotify", "Successfully connected to Spotify!")
+        except Exception as e:
+            messagebox.showerror("Spotify Connection Error", str(e))
 
     def setup_sidebar(self):
         # Sidebar header
