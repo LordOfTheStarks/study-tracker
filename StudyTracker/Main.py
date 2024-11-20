@@ -141,26 +141,71 @@ class StudyTrackerApp:
         for widget in self.list_frame.winfo_children():
             widget.destroy()
 
+        # Create outer frame to manage boundaries
+        self.outer_frame = ttk.Frame(self.list_frame)
+        self.outer_frame.pack(fill="both", expand=True)
+
         # Subjects list with scrollbar
-        self.canvas = tk.Canvas(self.list_frame, bg="#f0f0f0")
-        scrollbar = ttk.Scrollbar(self.list_frame, orient="vertical", command=self.canvas.yview)
+        self.canvas = tk.Canvas(self.outer_frame, bg="#f0f0f0", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(self.outer_frame, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = ttk.Frame(self.canvas)
 
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        # Configure scrolling behavior
+        def _on_frame_configure(event):
+            # Update the scrollregion to match the frame's actual size
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            # Get the visible height of the canvas
+            visible_height = self.canvas.winfo_height()
+            # Get the total height of the content
+            total_height = self.scrollable_frame.winfo_reqheight()
+
+            if total_height > visible_height:
+                # Only show scrollbar when content exceeds visible area
+                scrollbar.pack(side="right", fill="y")
+                self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+            else:
+                # Hide scrollbar when all content is visible
+                scrollbar.pack_forget()
+                self.canvas.unbind_all("<MouseWheel>")
+
+        def _on_mousewheel(event):
+            # Get current scroll position
+            current_pos = self.canvas.yview()
+
+            # Calculate scroll direction
+            if event.delta > 0:  # Scrolling up
+                if current_pos[0] <= 0:  # At the top
+                    return
+            else:  # Scrolling down
+                if current_pos[1] >= 1:  # At the bottom
+                    return
+
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        def _on_canvas_configure(event):
+            # Update the width of the scrollable frame when canvas is resized
+            self.canvas.itemconfig(canvas_window, width=event.width)
+
+        # Bind configuration events
+        self.scrollable_frame.bind("<Configure>", _on_frame_configure)
+        self.canvas.bind("<Configure>", _on_canvas_configure)
+
+        # Create the window for the scrollable frame
+        canvas_window = self.canvas.create_window(
+            (0, 0),
+            window=self.scrollable_frame,
+            anchor="nw",
+            tags="self.scrollable_frame"
         )
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        # Configure canvas and scrollbar
         self.canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.pack(side="left", fill="both", expand=True)
 
         # Create subject buttons
         data = self.data_manager.load_data()
         for subject in data:
             self.create_subject_button(subject)
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
 
     def create_subject_button(self, subject):
         frame = ttk.Frame(self.scrollable_frame)
@@ -168,20 +213,26 @@ class StudyTrackerApp:
 
         completion = self.progress_calculator.calculate_subject_completion(subject)
 
+        # Create a frame for the button and delete button
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill="x", expand=True)
+
         button = ttk.Button(
-            frame,
+            button_frame,
             text=f"{subject} ({completion}% Complete)",
-            command=lambda s=subject: self.open_subject_window(s)
+            command=lambda s=subject: self.open_subject_window(s),
+            style="Subject.TButton"  # Added style for consistency
         )
         button.pack(side="left", fill="x", expand=True)
 
         delete_btn = ttk.Button(
-            frame,
+            button_frame,
             text="×",
             command=lambda s=subject: self.delete_subject(s),
-            width=3
+            width=3,
+            style="Delete.TButton"  # Added style for consistency
         )
-        delete_btn.pack(side="right")
+        delete_btn.pack(side="right", padx=(5, 0))
 
     def create_add_button(self):
         add_button = ttk.Button(
