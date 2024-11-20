@@ -3,13 +3,15 @@ class ProgressCircle:
         self.canvas = canvas
         # Modern color scheme
         self.colors = {
-            'background': '#f8f9fa',
-            'circle_bg': '#e9ecef',
-            'progress_start': '#4CAF50',
-            'progress_end': '#45B649',
-            'text': '#212529'
+            'background': '#D2DCE5',  # Light blue-gray
+            'circle_bg': '#7D685F',  # Medium brown
+            'progress_start': '#493428',  # Dark brown
+            'progress_end': '#BE8464',  # Light brown
+            'text': '#483C32'  # Dark taupe
         }
+        self.canvas.configure(bg=self.colors['background'])  # Set canvas background
         self.congrats_shown = False
+
 
     def draw(self, percentage):
         self.canvas.delete("all")

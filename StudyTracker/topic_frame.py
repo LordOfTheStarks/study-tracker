@@ -44,26 +44,38 @@ class TopicFrame:
         self.create_add_subtopic_button()
 
     def setup_styles(self):
+        self.style.configure(
+            "Topic.TLabelframe",
+            background="#D2DCE5",
+            padding=15
+        )
+        self.style.configure(
+            "Topic.TLabelframe.Label",
+            font=(self.font_manager.get_font(), 12, "bold"),
+            foreground="#483C32",
+            background="#D2DCE5"
+        )
+
         # Configure styles for all buttons
         self.style.configure(
             "AddSubtopic.TButton",
             padding=(15, 8),
             font=(self.font_manager.get_font(), 10),
-            background="#3498db",
-            foreground="#000000"
+            background="#BE8464",
+            foreground="#483C32"
         )
 
         self.style.configure(
             "Delete.TButton",
             padding=5,
             font=(self.font_manager.get_font(), 8),
-            background="#e74c3c",
-            foreground="#000000"
+            background="#D2DCE5",
+            foreground="#7D685F"
         )
 
         self.style.configure(
             "Subtopic.TCheckbutton",
-            background="#ffffff",
+            background="#D2DCE5",
             font=(self.font_manager.get_font(), 10)
         )
     def display_subtopics(self, topic_data):

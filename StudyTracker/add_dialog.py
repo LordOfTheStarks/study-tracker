@@ -69,21 +69,21 @@ class AddDialog:
         # Dialog frame style
         style.configure(
             "Dialog.TFrame",
-            background="#ffffff"
+            background="#D2DCE5"  # Light blue-gray
         )
 
         # Dialog label style
         style.configure(
             "Dialog.TLabel",
-            background="#ffffff",
-            foreground="#2c3e50",
+            background="#D2DCE5",  # Light blue-gray
+            foreground="#483C32",  # Dark taupe
             font=(self.font_manager.get_font(), 12)
         )
 
         # Entry style
         style.configure(
             "Dialog.TEntry",
-            fieldbackground="#ffffff",
+            fieldbackground="#D2DCE5",  # Light blue-gray
             padding=5,
             font=(self.font_manager.get_font(), 10)
         )
@@ -92,6 +92,8 @@ class AddDialog:
         style.configure(
             "Dialog.TButton",
             padding=(20, 10),
+            background="#BE8464",  # Light brown
+            foreground="#483C32",  # Dark taupe
             font=(self.font_manager.get_font(), 10)
         )
 

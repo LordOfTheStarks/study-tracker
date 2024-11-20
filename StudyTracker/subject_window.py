@@ -52,11 +52,11 @@ class ModernSidebar(ttk.Frame):
 
         # Configure sidebar style
         style = ttk.Style()
-        style.configure("Sidebar.TFrame", background="#2c3e50")
+        style.configure("Sidebar.TFrame", background="#493428")
         self.configure(style="Sidebar.TFrame")
 
         # Create a canvas and scrollbar for scrolling
-        self.canvas = tk.Canvas(self, bg="#2c3e50", highlightthickness=0)
+        self.canvas = tk.Canvas(self, bg="#493428", highlightthickness=0)
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = ttk.Frame(self.canvas, style="Sidebar.TFrame")
 
@@ -100,13 +100,12 @@ class ModernSidebar(ttk.Frame):
         self.canvas.itemconfig(self.canvas.find_withtag("all")[0], width=event.width)
 
     def setup_ui(self):
-        # Header
         header = ttk.Label(
             self.scrollable_frame,
             text="Subjects",
-            font=("Helvetica", 12, "bold"),
-            foreground="#ecf0f1",
-            background="#2c3e50"
+            font=(self.font_manager.get_font(), 12, "bold"),
+            foreground="#D2DCE5",
+            background="#493428"
         )
         header.pack(pady=20, padx=10)
 
@@ -136,7 +135,7 @@ class ModernSidebar(ttk.Frame):
 
     def create_subject_button(self, subject):
         is_current = subject == self.current_subject
-        bg_color = "#34495e" if is_current else "#2c3e50"
+        bg_color = "#BE8464" if is_current else "#493428"
 
         button_frame = tk.Frame(self.subject_buttons_frame, bg=bg_color)
         button_frame.pack(fill="x", pady=2)
@@ -145,7 +144,8 @@ class ModernSidebar(ttk.Frame):
             button_frame,
             text=subject,
             bg=bg_color,
-            fg="#ecf0f1",
+            fg="#D2DCE5",
+            font=(self.font_manager.get_font(), 11),
             padx=20,
             pady=10,
             cursor="hand2"
@@ -158,16 +158,16 @@ class ModernSidebar(ttk.Frame):
         button_frame.bind("<Enter>", self._bind_mousewheel)
         button_frame.bind("<Leave>", self._unbind_mousewheel)
 
-        # Hover effects
+        # In hover effects
         def on_enter(e):
             if not is_current:
-                button_frame.configure(bg="#34495e")
-                button.configure(bg="#34495e")
+                button_frame.configure(bg="#7D685F")
+                button.configure(bg="#7D685F")
 
         def on_leave(e):
             if not is_current:
-                button_frame.configure(bg="#2c3e50")
-                button.configure(bg="#2c3e50")
+                button_frame.configure(bg="#493428")
+                button.configure(bg="#493428")
 
         def on_click(e):
             if not is_current:
@@ -234,15 +234,21 @@ class SubjectWindow:
             "Sidebar.TButton",
             padding=10,
             font=("Helvetica", 11, "bold"),
-            background="#2c3e50",
-            foreground="#000000"
+            background="#493428",
+            foreground="#D2DCE5"
         )
 
         # Modern frame style
-        style.configure("Modern.TFrame", background="#ffffff")
-        style.configure("Modern.TButton", padding=10, font=("Helvetica", 11), background="#3498db",
-                        foreground="#000000")
-        style.configure("AddTopic.TButton", padding=10, font=("Helvetica", 12, "bold"), background="#3498db")
+        style.configure("Modern.TFrame", background="#D2DCE5")
+        style.configure("Modern.TButton",
+                        padding=10,
+                        font=("Helvetica", 11),
+                        background="#BE8464",
+                        foreground="#483C32")
+        style.configure("AddTopic.TButton",
+                        padding=10,
+                        font=("Helvetica", 12, "bold"),
+                        background="#BE8464")
     def setup_ui(self):
         # Progress circle
         self.canvas = tk.Canvas(self.content_frame, width=200, height=200, bg="#ffffff", highlightthickness=0)

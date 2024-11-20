@@ -14,7 +14,7 @@ class StudyTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Study Tracker")
-        self.root.geometry("1000x700")
+        self.root.geometry("1280x720")
         self.root.configure(bg="#f0f0f0")
 
         # Initialize FontManager
@@ -42,16 +42,29 @@ class StudyTrackerApp:
         self.setup_sidebar()
 
         # Content area
-        self.content_frame = ttk.Frame(self.main_container)
+        self.content_frame = ttk.Frame(self.main_container, style="Content.TFrame")
         self.content_frame.pack(side="left", fill="both", expand=True, padx=20, pady=20)
 
+        # Configure styles for the content frame
+        style = ttk.Style()
+        style.configure(
+            "Content.TFrame",
+            background="#D2DCE5"  # Light blue-gray
+        )
+
         # Clock in the center
-        self.clock_label = ttk.Label(self.content_frame, font=("Helvetica", 48), anchor="center")
+        self.clock_label = ttk.Label(
+            self.content_frame,
+            font=("Helvetica", 48),
+            anchor="center",
+            foreground="#483C32",  # Dark taupe
+            background="#D2DCE5"  # Light blue-gray
+        )
         self.clock_label.pack(pady=20)
         self.update_clock()
 
         # Study tracker content
-        self.study_tracker_frame = ttk.Frame(self.content_frame)
+        self.study_tracker_frame = ttk.Frame(self.content_frame, style="Content.TFrame")
         self.study_tracker_frame.pack(fill="both", expand=True)
         self.setup_study_tracker()
 
@@ -60,29 +73,29 @@ class StudyTrackerApp:
         ttk.Label(
             self.sidebar,
             text="Trackers",
-            font=("Helvetica", 14, "bold"),
-            foreground="#ecf0f1",
-            background="#2c3e50"
+            font=(self.font_manager.get_font(), 14, "bold"),  # Changed this line
+            foreground="#D2DCE5",  # Light blue-gray for text
+            background="#493428"  # Dark brown for background
         ).pack(pady=20)
 
         # Configure sidebar style
         style = ttk.Style()
         style.configure(
             "Sidebar.TFrame",
-            background="#2c3e50"
+            background="#493428"  # Dark brown
         )
         style.configure(
             "Sidebar.TButton",
             padding=10,
-            font=("Helvetica", 11, "bold"),
-            background="#2c3e50",
-            foreground="#000000"
+            font=(self.font_manager.get_font(), 11, "bold"),  # Changed this line
+            background="#BE8464",  # Light brown
+            foreground="#483C32",  # Dark taupe
         )
         style.configure(
             "Sidebar.TLabel",
-            background="#2c3e50",
-            foreground="#ecf0f1",
-            font=("Helvetica", 14, "bold")
+            background="#493428",  # Dark brown
+            foreground="#D2DCE5",  # Light blue-gray
+            font=(self.font_manager.get_font(), 14, "bold")  # Changed this line
         )
 
         # Apply the sidebar frame style
@@ -112,7 +125,11 @@ class StudyTrackerApp:
     def update_clock(self):
         if self.clock_label.winfo_exists():
             now = datetime.now().strftime("%H:%M:%S")
-            self.clock_label.config(text=now)
+            self.clock_label.config(
+                text=now,
+                font=(self.font_manager.get_font(), 48),
+                foreground="#483C32",  # Dark taupe for text
+            )
             self.root.after(1000, self.update_clock)
 
     def setup_study_tracker(self):
@@ -228,7 +245,7 @@ class StudyTrackerApp:
 
         button = ttk.Button(
             button_frame,
-            text=f"{subject} ({completion}% Complete)",
+            text=f"{subject} ({completion} Complete)",
             command=lambda s=subject: self.open_subject_window(s),
             style="Subject.TButton"  # Added style for consistency
         )
@@ -236,18 +253,27 @@ class StudyTrackerApp:
 
         delete_btn = ttk.Button(
             button_frame,
-            text="×",
+            text="X",
             command=lambda s=subject: self.delete_subject(s),
             width=3,
-            style="Delete.TButton"  # Added style for consistency
+            style="Delete.TButton"
         )
         delete_btn.pack(side="right", padx=(5, 0))
 
     def create_add_button(self):
+        style = ttk.Style()
+        style.configure(
+            "AddButton.TButton",
+            background="#BE8464",  # Light brown
+            foreground="#483C32",  # Dark taupe
+            font=(self.font_manager.get_font(), 14, "bold"),  # Increased font size
+            padding=(10, 5)
+        )
         add_button = ttk.Button(
             self.button_frame,
             text="+ Add Subject",
-            command=self.add_subject
+            command=self.add_subject,
+            style="AddButton.TButton"
         )
         add_button.pack(pady=20)
 
@@ -285,10 +311,15 @@ class StudyTrackerApp:
 
     def center_window(self):
         self.root.update_idletasks()
-        width = self.root.winfo_width()
-        height = self.root.winfo_height()
-        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.root.winfo_screenheight() // 2) - (height // 2)
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Set window width and height relative to screen size
+        width = int(screen_width * 0.8)  # 80% of screen width
+        height = int(screen_height * 0.8)  # 80% of screen height
+
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
 
